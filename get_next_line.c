@@ -10,25 +10,73 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
-#include <fcntl.h>
-#include <stdio.h>
+
+static char *find_line_end(int fd, char *rest, char *buffer)
+{
+	int readed;
+	char *temp;
+	readed = 1;
+	while (readed > 0)
+	{
+		readed = read(fd, buffer, BUFFER_SIZE);
+		if (readed == -1)
+		{
+			free(rest);
+			return (0);
+		}
+		if (readed == 0)
+			break;
+		buffer[readed] = '\0';
+		if (!temp)
+			temp = ft_strdup("");
+		temp = rest;
+		rest = ft_strjoin(temp, buffer);
+		free(temp);
+		temp = 0;
+		if (ft_strchr(buffer, '\n'))
+			break;
+	}
+	return (rest);
+}
+
+static char *get_line(char *line)
+{
+int	i;
+char *rest;
+
+i = 0;
+while (line[i] != '\n' || line[i] != '\0')
+	i++;
+rest = ft_substr(line, i + 1, ft_strlen(line) - i);
+if (!rest)
+{
+free(rest);
+rest = 0;
+return (0);
+}
+line[i + 1] = 0;
+return (rest);
+}
 
 char	*get_next_line(int fd)
 {
-	static char buffer[42];
-	int	rd;
+	static char *rest;
+	char	*line;
+	char	*buffer;
 
-	while ((rd = read(fd, buffer, 42)))
+	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
-		buffer[rd] = '\0';
-		printf("\n'%s'\n", buffer);
+		free(buffer);
+		free(rest);
+		buffer = 0;
 	}
-	return (buffer);
-}
+	if (!buffer)
+		return (0);
+	line = find_line_end(fd, rest, buffer);
+	free(buffer);
+	if (!line)
+		return (0);
 
-int main(void)
-{
-	int fd = open("test.c", O_RDONLY);
-	get_next_line(fd);
-	return (0);
 }
