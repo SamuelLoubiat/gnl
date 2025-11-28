@@ -46,7 +46,7 @@ static char	*get_line(char *line)
 	char	*rest;
 
 	i = 0;
-	while (line[i] != '\n' || line[i] != '\0')
+	while (line[i] != '\n' && line[i] != '\0')
 		i++;
 	rest = ft_substr(line, i + 1, ft_strlen(line) - i);
 	if (!rest)
@@ -78,5 +78,6 @@ char	*get_next_line(int fd)
 	free(buffer);
 	if (!line)
 		return (0);
+	rest = get_line(line);
 	return (line);
 }
