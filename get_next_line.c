@@ -48,6 +48,8 @@ static char	*get_line(char *line)
 	i = 0;
 	while (line[i] != '\n' && line[i] != '\0')
 		i++;
+	if (!line[i] || !line[1])
+		return (0);
 	rest = ft_substr(line, i + 1, ft_strlen(line) - i);
 	if (!rest)
 	{
@@ -66,14 +68,15 @@ char	*get_next_line(int fd)
 	char		*buffer;
 
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buffer)
+		return (0);
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
 		free(buffer);
 		free(rest);
 		buffer = 0;
-	}
-	if (!buffer)
 		return (0);
+	}
 	line = find_line_end(fd, rest, buffer);
 	free(buffer);
 	if (!line)

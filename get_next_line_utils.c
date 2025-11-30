@@ -10,26 +10,25 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
-#include <stdio.h>
 
-char	*ft_strdup(char *s)
+char	*ft_strdup(char *src)
 {
-	int		size;
-	char	*c;
+	char	*dest;
 	int		i;
 
-	i = 0;
-	size = ft_strlen(s);
-	c = malloc(sizeof(char) * (size + 2));
-	if (!c)
+	if (!src)
 		return (0);
-	while (s[i])
+	i = 0;
+	dest = malloc(ft_strlen(src) + 1);
+	if (!dest)
+		return (0);
+	while (src[i])
 	{
-		c[i] = s[i];
+		dest[i] = src[i];
 		i++;
 	}
-	c[i] = '\0';
-	return (c);
+	dest[i] = 0;
+	return (dest);
 }
 
 char	*ft_strchr(char *s, int c)
@@ -37,6 +36,8 @@ char	*ft_strchr(char *s, int c)
 	unsigned int	i;
 	char			cc;
 
+	if (!s)
+		return (0);
 	cc = (char) c;
 	i = 0;
 	while (s[i])
@@ -58,10 +59,10 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	if (!s)
 		return (0);
 	if (start > ft_strlen(s))
-		return (ft_strdup(""));
-	if (len > ft_strlen(&s[start]))
-		len = ft_strlen(&s[start]);
-	str = malloc((len + 2) * sizeof(char));
+		return (malloc(1));
+	if (len > ft_strlen(s + start))
+		len = ft_strlen(s + start);
+	str = malloc(len + 1);
 	if (!str)
 		return (0);
 	i = 0;
@@ -70,35 +71,27 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 		str[i] = s[start + i];
 		i++;
 	}
-	str[i] = '\0';
+	str[i] = 0;
 	return (str);
 }
 
 char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*join;
-	int		size;
 	int		i;
 	int		j;
 
-	size = ft_strlen(s1) + ft_strlen(s2);
-	join = (char *) malloc(sizeof(char) * (size + 2));
+	join = (char *) malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
 	if (!join)
 		return (0);
 	i = 0;
+	j = 0;
 	while (s1[i])
-	{
-		join[i] = s1[i];
-		i++;
-	}
+		join[i++] = s1[j++];
 	j = 0;
 	while (s2[j])
-	{
-		join[i] = s2[j];
-		i++;
-		j++;
-	}
-	join[i] = '\0';
+		join[i++] = s2[j++];
+	join[i] = 0;
 	return (join);
 }
 
@@ -109,5 +102,5 @@ size_t	ft_strlen(char *s)
 	i = 0;
 	while (s[i])
 		i++;
-	return (igit);
+	return (i);
 }
