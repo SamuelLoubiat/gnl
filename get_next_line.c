@@ -11,10 +11,17 @@
 /* ************************************************************************** */
 #include "get_next_line.h"
 
-static char *find_line_end(int fd, char *rest, char *buffer)
+static void	free_buffer(char *buffer, char *rest)
 {
-	int readed;
-	char *line;
+	buffer[0] = 0;
+	rest[0] = 0;
+}
+
+static char	*find_line_end(int fd, char *rest, char *buffer)
+{
+	int		readed;
+	char	*line;
+	char	*tmp;
 
 	line = ft_strdup(rest);
 	if (!line)
@@ -27,26 +34,24 @@ static char *find_line_end(int fd, char *rest, char *buffer)
 	{
 		readed = read(fd, buffer, BUFFER_SIZE);
 		if (readed <= 0)
-			return line;
-
+			return (line);
 		buffer[readed] = '\0';
-
-		char *tmp = line;
+		tmp = line;
 		line = ft_strjoin(tmp, buffer);
 		free(tmp);
-
 		if (ft_strchr(buffer, '\n'))
-			break;
+			break ;
 	}
-	return line;
+	return (line);
 }
 
-static void fill_rest(char *rest, char *line)
+static void	fill_rest(char *rest, char *line)
 {
-	int i = 0;
+	int	i;
+
+	i = 0;
 	while (line[i] && line[i] != '\n')
 		i++;
-
 	if (line[i] == '\n')
 	{
 		i++;
@@ -59,23 +64,24 @@ static void fill_rest(char *rest, char *line)
 	}
 }
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-	static char rest[BUFFER_SIZE + 1] = {0};
-	static char buffer[BUFFER_SIZE + 1] = {0};
-	char *line;
+	static char	rest[BUFFER_SIZE + 1];
+	static char	buffer[BUFFER_SIZE + 1];
+	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return 0;
-
+	{
+		free_buffer(rest, buffer);
+		return (0);
+	}
 	line = find_line_end(fd, rest, buffer);
-
 	if (!line || !line[0])
 	{
 		free(line);
-		return 0;
+		free_buffer(rest, buffer);
+		return (0);
 	}
-
 	fill_rest(rest, line);
-	return line;
+	return (line);
 }
