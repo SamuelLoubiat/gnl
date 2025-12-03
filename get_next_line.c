@@ -33,11 +33,18 @@ static char	*find_line_end(int fd, char *rest, char *buffer)
 	while (readed > 0)
 	{
 		readed = read(fd, buffer, BUFFER_SIZE);
-		if (readed <= 0)
+		if (readed == 0)
 			return (line);
+		if (readed < 0)
+			return (0);
 		buffer[readed] = '\0';
 		tmp = line;
 		line = ft_strjoin(tmp, buffer);
+		if (!line)
+		{
+			free(tmp);
+			return (0);
+		}
 		free(tmp);
 		if (ft_strchr(buffer, '\n'))
 			break ;
@@ -45,10 +52,10 @@ static char	*find_line_end(int fd, char *rest, char *buffer)
 	return (line);
 }
 
-static void	fill_rest(char *rest, char *line)
+static char	*fill_rest(char *rest, char *line)
 {
 	int	i;
-
+	char *tmp;
 	i = 0;
 	while (line[i] && line[i] != '\n')
 		i++;
@@ -57,11 +64,15 @@ static void	fill_rest(char *rest, char *line)
 		i++;
 		ft_strlcpy(rest, &line[i], BUFFER_SIZE);
 		line[i] = '\0';
+		tmp = line;
+		line = ft_strdup(tmp);
+		free(tmp);
 	}
 	else
 	{
 		rest[0] = '\0';
 	}
+	return (line);
 }
 
 char	*get_next_line(int fd)
@@ -82,6 +93,6 @@ char	*get_next_line(int fd)
 		free_buffer(rest, buffer);
 		return (0);
 	}
-	fill_rest(rest, line);
+	line = fill_rest(rest, line);
 	return (line);
 }
