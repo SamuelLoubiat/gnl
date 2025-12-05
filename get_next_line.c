@@ -6,7 +6,7 @@
 /*   By: sloubiat <sloubiat@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 10:48:34 by sloubiat          #+#    #+#             */
-/*   Updated: 2025/11/28 15:37:04 by sloubiat         ###   ########lyon.fr   */
+/*   Updated: 2025/12/05 18:05:29 by sloubiat         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -17,15 +17,23 @@ static void	free_buffer(char *buffer, char *rest)
 	rest[0] = 0;
 }
 
-static char	*find_line_end(int fd, char *rest, char *buffer)
+static char	*join_and_free(char *s1, char *s2)
+{
+	char	*new;
+
+	new = ft_strjoin(s1, s2);
+	free(s1);
+	return (new);
+}
+
+static char	*fill_line(int fd, char *rest, char *buffer)
 {
 	int		readed;
 	char	*line;
-	char	*tmp;
 
 	line = ft_strdup(rest);
 	if (!line)
-		return (0);
+		return (NULL);
 	rest[0] = '\0';
 	readed = 1;
 	if (ft_strchr(line, '\n'))
@@ -33,19 +41,14 @@ static char	*find_line_end(int fd, char *rest, char *buffer)
 	while (readed > 0)
 	{
 		readed = read(fd, buffer, BUFFER_SIZE);
+		if (readed < 0)
+			return (free(line), NULL);
 		if (readed == 0)
 			return (line);
-		if (readed < 0)
-			return (0);
 		buffer[readed] = '\0';
-		tmp = line;
-		line = ft_strjoin(tmp, buffer);
+		line = join_and_free(line, buffer);
 		if (!line)
-		{
-			free(tmp);
-			return (0);
-		}
-		free(tmp);
+			return (NULL);
 		if (ft_strchr(buffer, '\n'))
 			break ;
 	}
@@ -54,8 +57,9 @@ static char	*find_line_end(int fd, char *rest, char *buffer)
 
 static char	*fill_rest(char *rest, char *line)
 {
-	int	i;
-	char *tmp;
+	int		i;
+	char	*tmp;
+
 	i = 0;
 	while (line[i] && line[i] != '\n')
 		i++;
@@ -81,12 +85,12 @@ char	*get_next_line(int fd)
 	static char	buffer[BUFFER_SIZE + 1];
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 	{
 		free_buffer(rest, buffer);
 		return (0);
 	}
-	line = find_line_end(fd, rest, buffer);
+	line = fill_line(fd, rest, buffer);
 	if (!line || !line[0])
 	{
 		free(line);

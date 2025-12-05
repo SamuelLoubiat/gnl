@@ -51,29 +51,6 @@ char	*ft_strchr(char *s, int c)
 	return (NULL);
 }
 
-char	*ft_substr(char *s, unsigned int start, size_t len)
-{
-	size_t	i;
-	char	*str;
-
-	if (!s)
-		return (0);
-	if (start > ft_strlen(s))
-		return (malloc(1));
-	if (len > ft_strlen(s + start))
-		len = ft_strlen(s + start);
-	str = malloc(len + 1);
-	if (!str)
-		return (0);
-	i = 0;
-	while (i < len)
-	{
-		str[i] = s[start + i];
-		i++;
-	}
-	str[i] = 0;
-	return (str);
-}
 
 char	*ft_strjoin(char *s1, char *s2)
 {
