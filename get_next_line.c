@@ -11,51 +11,50 @@
 /* ************************************************************************** */
 #include "get_next_line.h"
 
-static void	free_buffer(char *buffer, char *rest)
+static void	reset_buffers(char *buffer, char *rest)
 {
-	buffer[0] = 0;
-	rest[0] = 0;
+	buffer[0] = '\0';
+	rest[0] = '\0';
 }
 
 static char	*join_and_free(char *s1, char *s2)
 {
-	char	*new;
+	char	*line;
 
-	new = ft_strjoin(s1, s2);
+	line = ft_strjoin(s1, s2);
 	free(s1);
-	return (new);
+	return (line);
 }
 
-static char	*fill_line(int fd, char *rest, char *buffer)
+static char	*read_line(int fd, char *rest, char *buffer)
 {
-	int		readed;
+	int		bytes;
 	char	*line;
 
 	line = ft_strdup(rest);
 	if (!line)
 		return (NULL);
-	rest[0] = '\0';
-	readed = 1;
+	bytes = 1;
 	if (ft_strchr(line, '\n'))
-		readed = 0;
-	while (readed > 0)
+		return (line);
+	while (bytes > 0)
 	{
-		readed = read(fd, buffer, BUFFER_SIZE);
-		if (readed < 0)
+		bytes = read(fd, buffer, BUFFER_SIZE);
+		if (bytes < 0)
 			return (free(line), NULL);
-		if (readed == 0)
+		if (bytes == 0)
 			return (line);
-		buffer[readed] = '\0';
+		buffer[bytes] = '\0';
 		line = join_and_free(line, buffer);
 		if (!line)
-			return (NULL);
+			return (0);
 		if (ft_strchr(buffer, '\n'))
 			break ;
 	}
 	return (line);
 }
 
-static char	*fill_rest(char *rest, char *line)
+static char	*extract_rest(char *rest, char *line)
 {
 	int		i;
 	char	*tmp;
@@ -87,16 +86,16 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 	{
-		free_buffer(rest, buffer);
+		reset_buffers(buffer, rest);
 		return (0);
 	}
-	line = fill_line(fd, rest, buffer);
+	line = read_line(fd, rest, buffer);
 	if (!line || !line[0])
 	{
 		free(line);
-		free_buffer(rest, buffer);
+		reset_buffers(buffer, rest);
 		return (0);
 	}
-	line = fill_rest(rest, line);
+	line = extract_rest(rest, line);
 	return (line);
 }
