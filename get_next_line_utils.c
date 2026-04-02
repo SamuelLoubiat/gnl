@@ -6,7 +6,7 @@
 /*   By: sloubiat <sloubiat@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 10:48:25 by sloubiat          #+#    #+#             */
-/*   Updated: 2025/11/28 15:35:39 by sloubiat         ###   ########lyon.fr   */
+/*   Updated: 2026/04/01 23:41:39 by sloubiat         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -48,7 +48,7 @@ char	*ft_strchr(char *s, int c)
 	}
 	if (s[i] == cc)
 		return ((char *) &s[i]);
-	return (NULL);
+	return (0);
 }
 
 char	*ft_strjoin(char *s1, char *s2)

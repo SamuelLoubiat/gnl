@@ -6,15 +6,15 @@
 /*   By: sloubiat <sloubiat@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 10:48:34 by sloubiat          #+#    #+#             */
-/*   Updated: 2025/12/05 18:05:29 by sloubiat         ###   ########lyon.fr   */
+/*   Updated: 2026/04/01 23:45:29 by sloubiat         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
 
-static void	reset_buffers(char *buffer, char *rest)
+static char	*ft_free(char *str)
 {
-	buffer[0] = '\0';
-	rest[0] = '\0';
+	free(str);
+	return (0);
 }
 
 static char	*join_and_free(char *s1, char *s2)
@@ -26,14 +26,14 @@ static char	*join_and_free(char *s1, char *s2)
 	return (line);
 }
 
-static char	*read_line(int fd, char *rest, char *buffer)
+static char	*read_line(int fd, char *buffer)
 {
 	int		bytes;
 	char	*line;
 
-	line = ft_strdup(rest);
+	line = ft_strdup(buffer);
 	if (!line)
-		return (NULL);
+		return (0);
 	bytes = 1;
 	if (ft_strchr(line, '\n'))
 		return (line);
@@ -41,7 +41,7 @@ static char	*read_line(int fd, char *rest, char *buffer)
 	{
 		bytes = read(fd, buffer, BUFFER_SIZE);
 		if (bytes < 0)
-			return (free(line), NULL);
+			return (ft_free(line));
 		if (bytes == 0)
 			return (line);
 		buffer[bytes] = '\0';
@@ -54,7 +54,7 @@ static char	*read_line(int fd, char *rest, char *buffer)
 	return (line);
 }
 
-static char	*extract_rest(char *rest, char *line)
+static char	*extract_rest(char *buffer, char *line)
 {
 	int		i;
 	char	*tmp;
@@ -65,37 +65,48 @@ static char	*extract_rest(char *rest, char *line)
 	if (line[i] == '\n')
 	{
 		i++;
-		ft_strlcpy(rest, &line[i], BUFFER_SIZE);
+		ft_strlcpy(buffer, &line[i], BUFFER_SIZE);
 		line[i] = '\0';
 		tmp = line;
 		line = ft_strdup(tmp);
 		free(tmp);
 	}
 	else
-	{
-		rest[0] = '\0';
-	}
+		buffer[0] = '\0';
 	return (line);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	rest[BUFFER_SIZE + 1];
 	static char	buffer[BUFFER_SIZE + 1];
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 	{
-		reset_buffers(buffer, rest);
+		buffer[0] = '\0';
 		return (0);
 	}
-	line = read_line(fd, rest, buffer);
+	line = read_line(fd, buffer);
 	if (!line || !line[0])
 	{
-		free(line);
-		reset_buffers(buffer, rest);
-		return (0);
+		buffer[0] = '\0';
+		return (ft_free(line));
 	}
-	line = extract_rest(rest, line);
+	line = extract_rest(buffer, line);
 	return (line);
 }
+
+/*#include <stdio.h>
+#include <fcntl.h>
+
+int main(void)
+{
+int fd = open("test.txt", O_RDONLY);
+char *line = get_next_line(fd);
+printf("%s", line);
+free(line);
+close(fd);
+*line = get_next_line(42);
+printf("%s", line);
+return (0);
+}*/
